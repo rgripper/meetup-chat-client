@@ -29,7 +29,7 @@ export type JoinResult =
 export class ChatService {
     private socket: SocketIOClient.Socket;
 
-    private $socketState = new BehaviorSubject(SocketState.Initial);
+    public stateChanges = new BehaviorSubject(SocketState.Initial);
 
     static connect(url: string): ChatService {
         const service = new ChatService();
@@ -79,28 +79,28 @@ export class ChatService {
     }
 
     private  wireEvents(socket: SocketIOClient.Socket): void {
-        socket.on('error', error => this.$socketState.next({ isConnected: false, isConnecting: false, error: error.toString() }));
-        socket.on('connect_error', error => this.$socketState.next({ isConnected: false, isConnecting: false, error: error.toString() }));
-        socket.on('reconnect_error', error => this.$socketState.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('connect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('reconnect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
         
-        socket.on('connect', () => this.$socketState.next({ isConnected: true, isConnecting: false }));
-        socket.on('reconnect', () => this.$socketState.next({ isConnected: true, isConnecting: false }));
+        socket.on('connect', () => this.stateChanges.next({ isConnected: true, isConnecting: false }));
+        socket.on('reconnect', () => this.stateChanges.next({ isConnected: true, isConnecting: false }));
 
-        socket.on('connecting', () => this.$socketState.next({ isConnected: false, isConnecting: true }));
-        socket.on('reconnecting', () => this.$socketState.next({ isConnected: false, isConnecting: true }));
+        socket.on('connecting', () => this.stateChanges.next({ isConnected: false, isConnecting: true }));
+        socket.on('reconnecting', () => this.stateChanges.next({ isConnected: false, isConnecting: true }));
 
-        socket.on('disconnect', () => this.$socketState.next({ isConnected: false, isConnecting: false }));
+        socket.on('disconnect', () => this.stateChanges.next({ isConnected: false, isConnecting: false }));
 
         socket.on('chat.server.join-result', (result: JoinResult) => {
             console.debug('chat.server.join-result');
             if (result.isSuccessful === true) {
-                this.$socketState.next({
-                    ...this.$socketState.value,
+                this.stateChanges.next({
+                    ...this.stateChanges.value,
                     chat: result.initialData
                 });
             }
             else if (result.isSuccessful === false) {
-                this.$socketState.next({
+                this.stateChanges.next({
                     isConnected: false,
                     isConnecting: false,
                     error: result.errorMessage,
@@ -110,10 +110,10 @@ export class ChatService {
         });
 
         socket.on('chat.server.event', (event: CustomServerEvent) => {
-            if (this.$socketState.value.isConnected && this.$socketState.value.chat != undefined) {
-                this.$socketState.next({
-                    ...this.$socketState.value,
-                    chat: this.getNewChatState(this.$socketState.value.chat, event)
+            if (this.stateChanges.value.isConnected && this.stateChanges.value.chat != undefined) {
+                this.stateChanges.next({
+                    ...this.stateChanges.value,
+                    chat: this.getNewChatState(this.stateChanges.value.chat, event)
                 });
             }
         });
