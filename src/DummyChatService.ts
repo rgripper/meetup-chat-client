@@ -6,15 +6,15 @@ import { SubmittedMessage } from './SubmittedMessage';
 
 export class DummyChatService {
 
+    private readonly dummyNames = ['Sam', 'Bill', 'RubberyJoe', 'Jenny', 'Cyclepath9'];
+
+    private readonly initialChatState = { messages: [], users: [] };
+
     private chatState: ChatState = { messages: [], users: [] };
 
     private currentUser?: User;
 
-    private readonly dummyNames = ['Sam', 'Bill', 'RubberyJoe', 'Jenny', 'Cyclepath9'];
-
     private lastMessageId = 0;
-
-    private readonly initialChatState = { messages: [], users: [] };
 
     private static intervalId: any;
 

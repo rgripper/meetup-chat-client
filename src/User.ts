@@ -1,7 +1,7 @@
 export interface User {
-  id: number
-  name: string
-  avatarUrl?: string
-  isConnected: boolean
-  isTyping: boolean
+    readonly id: number
+    readonly name: string
+    readonly avatarUrl?: string
+    readonly isConnected: boolean
+    readonly isTyping: boolean
 }

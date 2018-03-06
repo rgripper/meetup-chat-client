@@ -3,13 +3,10 @@ import { Message } from './Message'
 import { SubmittedMessage } from './SubmittedMessage'
 import { User } from './User'
 import { ChatData } from "./ChatData"
-
-export interface ChatDataHandler {
-    handleJoinResult(x: JoinResult): void
-    handleUserJoined(x: User): void
-    handleUserReft(userId: number): void
-    handleMessageReceived(x: Message): void
-}
+import { ChatState } from './ChatState';
+import { SocketState, ConnectedSocketState } from './SocketState';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 type CustomServerEvent =
     | {
@@ -22,7 +19,7 @@ type CustomServerEvent =
     }
     | {
         type: 'UserLeft',
-        data: { userId: number } // TODO type it
+        data: { userId: number }
     }
 
 export type JoinResult =
@@ -30,15 +27,21 @@ export type JoinResult =
     | { isSuccessful: false, errorMessage: string }
 
 export class ChatService {
-    private readonly socket: SocketIOClient.Socket;
+    private socket: SocketIOClient.Socket;
 
-    constructor(url: string, handler: ChatDataHandler) {
-        this.socket = io(url, { transports: ['websocket'], autoConnect: false });
-        this.socket.on('connect', () => console.log('conn'));
-        this.socket.on('disconnected', () => console.log('disc'));
+    private $socketState = new BehaviorSubject(SocketState.Initial);
 
-        this.setUpHandler(this.socket, handler);
-        this.socket.connect();
+    static connect(url: string): ChatService {
+        const service = new ChatService();
+        const socket = io(url, { transports: ['websocket'], autoConnect: false });
+        service.socket = socket;
+        socket.on('connect', () => console.log('conn'));
+        socket.on('disconnected', () => console.log('disc'));
+
+        service.wireEvents(socket);
+        
+        socket.open();
+        return service;
     }
 
     join(userName: string): void {
@@ -53,23 +56,65 @@ export class ChatService {
         this.socket.emit('chat.client.message', message);
     }
 
-    setUpHandler(socket: SocketIOClient.Socket, handler: ChatDataHandler): void {
-        socket.on('chat.server.join-result', function (result: JoinResult) {
+    private getNewChatState(chatState: ChatState | undefined, event: CustomServerEvent): ChatState {
+        switch (event.type) {
+            case 'MessageReceived':
+                return {
+                    ...chatState,
+                    messages: [event.data, ...chatState.messages]
+                };
+            case 'UserJoined':
+                return {
+                    ...chatState,
+                    users: [event.data, ...chatState.users]
+                };
+            case 'UserLeft':
+                return {
+                    ...chatState,
+                    users: chatState.users.filter(u => u.id == event.data.userId)
+                };
+            default:
+                return chatState;
+        }
+    }
+
+    private  wireEvents(socket: SocketIOClient.Socket): void {
+        socket.on('error', error => this.$socketState.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('connect_error', error => this.$socketState.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('reconnect_error', error => this.$socketState.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+        
+        socket.on('connect', () => this.$socketState.next({ isConnected: true, isConnecting: false }));
+        socket.on('reconnect', () => this.$socketState.next({ isConnected: true, isConnecting: false }));
+
+        socket.on('connecting', () => this.$socketState.next({ isConnected: false, isConnecting: true }));
+        socket.on('reconnecting', () => this.$socketState.next({ isConnected: false, isConnecting: true }));
+
+        socket.on('disconnect', () => this.$socketState.next({ isConnected: false, isConnecting: false }));
+
+        socket.on('chat.server.join-result', (result: JoinResult) => {
             console.debug('chat.server.join-result');
-            handler.handleJoinResult(result);
+            if (result.isSuccessful === true) {
+                this.$socketState.next({
+                    ...this.$socketState.value,
+                    chat: result.initialData
+                });
+            }
+            else if (result.isSuccessful === false) {
+                this.$socketState.next({
+                    isConnected: false,
+                    isConnecting: false,
+                    error: result.errorMessage,
+                    chat: undefined
+                });
+            }
         });
 
-        socket.on('chat.server.event', function (event: CustomServerEvent) {
-            switch (event.type) {
-                case 'MessageReceived':
-                    handler.handleMessageReceived(event.data);
-                    return;
-                case 'UserJoined':
-                    handler.handleUserJoined(event.data);
-                    return;
-                case 'UserLeft':
-                    handler.handleUserReft(event.data.userId);
-                    return;
+        socket.on('chat.server.event', (event: CustomServerEvent) => {
+            if (this.$socketState.value.isConnected && this.$socketState.value.chat != undefined) {
+                this.$socketState.next({
+                    ...this.$socketState.value,
+                    chat: this.getNewChatState(this.$socketState.value.chat, event)
+                });
             }
         });
     }
