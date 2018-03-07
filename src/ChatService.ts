@@ -39,7 +39,7 @@ export class ChatService {
         socket.on('disconnected', () => console.log('disc'));
 
         service.wireEvents(socket);
-        
+        service.stateChanges.next({ isConnected: false, isConnecting: true });
         socket.open();
         return service;
     }
@@ -78,15 +78,13 @@ export class ChatService {
         }
     }
 
-    private  wireEvents(socket: SocketIOClient.Socket): void {
+    private wireEvents(socket: SocketIOClient.Socket): void {
         socket.on('error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
         socket.on('connect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
         socket.on('reconnect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
         
         socket.on('connect', () => this.stateChanges.next({ isConnected: true, isConnecting: false }));
-        socket.on('reconnect', () => this.stateChanges.next({ isConnected: true, isConnecting: false }));
 
-        socket.on('connecting', () => this.stateChanges.next({ isConnected: false, isConnecting: true }));
         socket.on('reconnecting', () => this.stateChanges.next({ isConnected: false, isConnecting: true }));
 
         socket.on('disconnect', () => this.stateChanges.next({ isConnected: false, isConnecting: false }));
