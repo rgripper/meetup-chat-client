@@ -1,35 +1,24 @@
 import * as io from 'socket.io-client'
-import { Message } from './Message'
-import { SubmittedMessage } from './SubmittedMessage'
-import { User } from './User'
-import { ChatData } from "./ChatData"
-import { ChatState } from './ChatState';
-import { SocketState, ConnectedSocketState } from './SocketState';
+import { Message } from './shared/model/Message'
+import { SubmittedMessage } from './shared/model/SubmittedMessage'
+import { User } from './shared/model/User'
+import { ChatState } from './shared/model/ChatState';
+import { SocketState, ConnectedSocketState, Authenticatable } from './SocketState';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { WebSocketEventName } from './shared/transport/WebSocketEventName';
+import { ClientCommand, ClientCommandType } from './shared/ClientCommand';
+import { ServerEvent, ServerEventType } from './shared/ServerEvent';
 
-type CustomServerEvent =
-    | {
-        type: 'MessageReceived',
-        data: Message
-    }
-    | {
-        type: 'UserJoined',
-        data: User
-    }
-    | {
-        type: 'UserLeft',
-        data: { userId: number }
-    }
-
-export type JoinResult =
-    | { isSuccessful: true, initialData: ChatData, user: User }
-    | { isSuccessful: false, errorMessage: string }
 
 export class ChatService {
     private socket: SocketIOClient.Socket;
 
     public stateChanges = new BehaviorSubject(SocketState.Initial);
+
+    private emitCommand(command: ClientCommand) {
+        this.socket.emit(WebSocketEventName.ClientCommand, command);
+    }
 
     static connect(url: string): ChatService {
         const service = new ChatService();
@@ -45,36 +34,56 @@ export class ChatService {
     }
 
     join(userName: string): void {
-        this.socket.emit('chat.client.join', userName);
+        this.emitCommand({ type: ClientCommandType.TryLogin, userName });
     }
 
     leave(): void {
-        this.socket.emit('chat.client.leave');
+        this.emitCommand({ type: ClientCommandType.Logout });
     }
 
     sendMessage(message: SubmittedMessage): void {
-        this.socket.emit('chat.client.message', message);
+        this.emitCommand({ type: ClientCommandType.AddMessage, message });
     }
 
-    private getNewChatState(chatState: ChatState | undefined, event: CustomServerEvent): ChatState {
-        switch (event.type) {
-            case 'MessageReceived':
-                return {
-                    ...chatState,
-                    messages: [event.data, ...chatState.messages]
-                };
-            case 'UserJoined':
-                return {
-                    ...chatState,
-                    users: [event.data, ...chatState.users]
-                };
-            case 'UserLeft':
-                return {
-                    ...chatState,
-                    users: chatState.users.filter(u => u.id == event.data.userId)
-                };
-            default:
-                return chatState;
+    private getNewChatState(chatState: Authenticatable<ChatState>, event: ServerEvent): Authenticatable<ChatState> {
+        if (chatState.isAuthenticated) {
+            switch (event.type) {
+                case ServerEventType.MessageAdded:
+                    return {
+                        ...chatState,
+                        messages: [event.message, ...chatState.messages]
+                    };
+                case ServerEventType.UserJoined:
+                    return {
+                        ...chatState,
+                        users: [event.user, ...chatState.users]
+                    };
+                case ServerEventType.UserLeft:
+                    return {
+                        ...chatState,
+                        users: chatState.users.filter(u => u.id == event.userId)
+                    };
+                default:
+                    console.log('event was not processed', event);
+                    return chatState;
+            }
+        }
+        else {
+            switch (event.type) {
+                case ServerEventType.LoginFailed:
+                    return {
+                        isAuthenticated: false,
+                        error: event.error
+                    }
+                case ServerEventType.LoginSuccessful:
+                    return {
+                        ...event.chat,
+                        isAuthenticated: true
+                    }
+                default:
+                    console.log('event was not processed', event);
+                    return chatState;
+            }
         }
     }
 
@@ -82,32 +91,14 @@ export class ChatService {
         socket.on('error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
         socket.on('connect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
         socket.on('reconnect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
-        
-        socket.on('connect', () => this.stateChanges.next({ isConnected: true, isConnecting: false }));
+
+        socket.on('connect', () => this.stateChanges.next({ isConnected: true, isConnecting: false, chat: { isAuthenticated: false } }));
 
         socket.on('reconnecting', () => this.stateChanges.next({ isConnected: false, isConnecting: true }));
 
         socket.on('disconnect', () => this.stateChanges.next({ isConnected: false, isConnecting: false }));
 
-        socket.on('chat.server.join-result', (result: JoinResult) => {
-            console.debug('chat.server.join-result');
-            if (result.isSuccessful === true) {
-                this.stateChanges.next({
-                    ...this.stateChanges.value,
-                    chat: result.initialData
-                });
-            }
-            else if (result.isSuccessful === false) {
-                this.stateChanges.next({
-                    isConnected: false,
-                    isConnecting: false,
-                    error: result.errorMessage,
-                    chat: undefined
-                });
-            }
-        });
-
-        socket.on('chat.server.event', (event: CustomServerEvent) => {
+        socket.on(WebSocketEventName.ServerEvent, (event: ServerEvent) => {
             if (this.stateChanges.value.isConnected && this.stateChanges.value.chat != undefined) {
                 this.stateChanges.next({
                     ...this.stateChanges.value,

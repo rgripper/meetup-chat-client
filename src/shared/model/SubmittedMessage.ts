@@ -1,3 +1,3 @@
 export interface SubmittedMessage {
-    readonly text: string
+    text: string
 }

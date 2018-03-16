@@ -1,9 +1,18 @@
-import { ChatState } from "./ChatState";
+import { ChatState } from "./shared/model/ChatState";
+
+export type Authenticatable<State> =
+| {
+    readonly isAuthenticated: true
+} & State
+| {
+    readonly isAuthenticated: false
+    readonly error?: string
+}
 
 export interface ConnectedSocketState {
     isConnected: true
     isConnecting: false
-    chat?: ChatState
+    chat: Authenticatable<ChatState>
 }
 
 export interface PendingSocketState {
