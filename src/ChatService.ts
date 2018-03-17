@@ -24,8 +24,8 @@ export class ChatService {
         const service = new ChatService();
         const socket = io(url, { transports: ['websocket'], autoConnect: false });
         service.socket = socket;
-        socket.on('connect', () => console.log('conn'));
-        socket.on('disconnected', () => console.log('disc'));
+        socket.on('connect', () => console.log('connected'));
+        socket.on('disconnect', () => console.log('disconnected'));
 
         service.wireEvents(socket);
         service.stateChanges.next({ isConnected: false, isConnecting: true });
@@ -43,6 +43,14 @@ export class ChatService {
 
     sendMessage(message: SubmittedMessage): void {
         this.emitCommand({ type: ClientCommandType.AddMessage, message });
+    }
+
+    resetState(): void {
+        this.emitCommand({ type: ClientCommandType.ResetState });
+    }
+
+    disconnect(): void {
+        this.socket.disconnect();
     }
 
     private getNewChatState(chatState: Authenticatable<ChatState>, event: ServerEvent): Authenticatable<ChatState> {
@@ -99,7 +107,8 @@ export class ChatService {
         socket.on('disconnect', () => this.stateChanges.next({ isConnected: false, isConnecting: false }));
 
         socket.on(WebSocketEventName.ServerEvent, (event: ServerEvent) => {
-            if (this.stateChanges.value.isConnected && this.stateChanges.value.chat != undefined) {
+            console.log(event);
+            if (this.stateChanges.value.isConnected) {
                 this.stateChanges.next({
                     ...this.stateChanges.value,
                     chat: this.getNewChatState(this.stateChanges.value.chat, event)
