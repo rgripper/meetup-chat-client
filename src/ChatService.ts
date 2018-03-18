@@ -20,17 +20,15 @@ export class ChatService {
         this.socket.emit(WebSocketEventName.ClientCommand, command);
     }
 
-    static connect(url: string): ChatService {
-        const service = new ChatService();
+    constructor(url: string) {
         const socket = io(url, { transports: ['websocket'], autoConnect: false });
-        service.socket = socket;
         socket.on('connect', () => console.log('connected'));
         socket.on('disconnect', () => console.log('disconnected'));
 
-        service.wireEvents(socket);
-        service.stateChanges.next({ isConnected: false, isConnecting: true });
+        this.socket = socket;
+        this.wireEvents(socket, state => this.stateChanges.next(state));
+        this.stateChanges.next({ isConnected: false, isConnecting: true });
         socket.open();
-        return service;
     }
 
     join(userName: string): void {
@@ -95,21 +93,21 @@ export class ChatService {
         }
     }
 
-    private wireEvents(socket: SocketIOClient.Socket): void {
-        socket.on('error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
-        socket.on('connect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
-        socket.on('reconnect_error', error => this.stateChanges.next({ isConnected: false, isConnecting: false, error: error.toString() }));
+    private wireEvents(socket: SocketIOClient.Socket, emit: (state: SocketState) => void): void {
+        socket.on('error', error => emit({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('connect_error', error => emit({ isConnected: false, isConnecting: false, error: error.toString() }));
+        socket.on('reconnect_error', error => emit({ isConnected: false, isConnecting: false, error: error.toString() }));
 
-        socket.on('connect', () => this.stateChanges.next({ isConnected: true, isConnecting: false, chat: { isAuthenticated: false } }));
+        socket.on('connect', () => emit({ isConnected: true, isConnecting: false, chat: { isAuthenticated: false } }));
 
-        socket.on('reconnecting', () => this.stateChanges.next({ isConnected: false, isConnecting: true }));
+        socket.on('reconnecting', () => emit({ isConnected: false, isConnecting: true }));
 
-        socket.on('disconnect', () => this.stateChanges.next({ isConnected: false, isConnecting: false }));
+        socket.on('disconnect', () => emit({ isConnected: false, isConnecting: false }));
 
         socket.on(WebSocketEventName.ServerEvent, (event: ServerEvent) => {
             console.log(event);
             if (this.stateChanges.value.isConnected) {
-                this.stateChanges.next({
+                emit({
                     ...this.stateChanges.value,
                     chat: this.getNewChatState(this.stateChanges.value.chat, event)
                 });
