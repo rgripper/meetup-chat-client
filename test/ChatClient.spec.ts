@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/bufferCount';
-import { ChatService } from '../src/index';
+import { ChatClient } from '../src/index';
 import { ChatState } from '../src/shared/model/ChatState';
 import { ConnectedSocketState } from '../src/SocketState';
 
@@ -13,7 +13,7 @@ describe('ChatService', function () {
     this.timeout(15000);
 
     it('should connect', done => {
-        const service = new ChatService(serverUrl);
+        const service = new ChatClient(serverUrl);
         service.stateChanges
             .first(x => x.isConnected && !x.chat.isAuthenticated)
             .subscribe(x => {
@@ -26,7 +26,7 @@ describe('ChatService', function () {
     it('should join, send and receive a message', (done) => {
         const userName = 'Giraffe';
         const messageText = 'haha!';
-        const service = new ChatService(serverUrl);
+        const service = ChatClient.connect(serverUrl);
         service.stateChanges
             .filter((x): x is ConnectedSocketState & { chat: ChatState } => x.isConnected && x.chat.isAuthenticated)
             .bufferCount(2)

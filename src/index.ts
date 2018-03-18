@@ -1,2 +1,3 @@
-export { ChatService } from './ChatService'
+export { ChatClient } from './ChatClient'
 export { DummyChatService } from './DummyChatService'
+export { SocketState } from './SocketState'

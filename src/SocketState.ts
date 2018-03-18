@@ -1,21 +1,11 @@
 import { ChatState } from "./shared/model/ChatState";
 
-export type Authenticatable<State> =
-| {
-    readonly isAuthenticated: true
-} & State
-| {
-    readonly isAuthenticated: false
-    readonly error?: string
-}
-
 export interface ConnectedSocketState {
     isConnected: true
     isConnecting: false
-    chat: Authenticatable<ChatState>
 }
 
-export interface PendingSocketState {
+export interface ConnectingSocketState {
     isConnected: false
     isConnecting: true
 }
@@ -26,8 +16,8 @@ export interface DisconnectedSocketState {
     error?: string
 }
 
-export type SocketState = DisconnectedSocketState | PendingSocketState | ConnectedSocketState
-
 export const SocketState = {
-    Initial: { isConnected: false, isConnecting: false } as SocketState
+    Disconnected: { isConnected: false, isConnecting: false } as DisconnectedSocketState,
+    Connecting: { isConnected: false, isConnecting: true } as ConnectingSocketState,
+    Connected: { isConnected: true, isConnecting: false } as ConnectedSocketState
 }
