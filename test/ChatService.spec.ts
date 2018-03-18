@@ -13,7 +13,7 @@ describe('ChatService', function () {
     this.timeout(15000);
 
     it('should connect', done => {
-        const service = ChatService.connect(serverUrl);
+        const service = new ChatService(serverUrl);
         service.stateChanges
             .first(x => x.isConnected && !x.chat.isAuthenticated)
             .subscribe(x => {
@@ -26,11 +26,12 @@ describe('ChatService', function () {
     it('should join, send and receive a message', (done) => {
         const userName = 'Giraffe';
         const messageText = 'haha!';
-        const service = ChatService.connect(serverUrl);
+        const service = new ChatService(serverUrl);
         service.stateChanges
             .filter((x): x is ConnectedSocketState & { chat: ChatState } => x.isConnected && x.chat.isAuthenticated)
             .bufferCount(2)
             .subscribe(states => {
+                console.log(JSON.stringify(states))
                 const containsUserName = states.some(x => x.chat.users.some(u => u.name === userName));
                 const containsMessageText = states.some(x => x.chat.messages.some(u => u.text === messageText));
 

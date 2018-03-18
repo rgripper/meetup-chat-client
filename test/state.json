@@ -1,0 +1,41 @@
+{
+    "isConnected": true,
+    "isConnecting": false,
+    "chat": {
+        "users": [{
+            "name": "Dummy user",
+            "isConnected": false,
+            "isTyping": false,
+            "id": 1,
+            "avatarUrl": "https://robohash.org/Dummy user?size=128x128"
+        }, {
+            "name": "Giraffe",
+            "isConnected": true,
+            "isTyping": false,
+            "id": 2,
+            "avatarUrl": "https://robohash.org/Giraffe?size=128x128"
+        }],
+        "messages": [{
+            "id": 4,
+            "text": "haha!",
+            "creationDate": "2018-03-18T01:46:30.882Z",
+            "senderId": 2
+        }, {
+            "id": 1,
+            "text": "Are you talking to me?",
+            "creationDate": "2018-03-18T01:45:45.521Z",
+            "senderId": 1
+        }, {
+            "id": 2,
+            "text": "Well I'm the only one here.",
+            "creationDate": "2018-03-18T01:45:45.521Z",
+            "senderId": 1
+        }, {
+            "id": 3,
+            "text": "haha!",
+            "creationDate": "2018-03-18T01:45:59.442Z",
+            "senderId": 2
+        }],
+        "isAuthenticated": true
+    }
+}
