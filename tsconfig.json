@@ -8,7 +8,7 @@
         "experimentalDecorators": true,
         "removeComments": false,
         "allowJs": false,
-        "strict": true,
+        "strict": false,
 
         "skipLibCheck": true,
         "outDir": "dist",

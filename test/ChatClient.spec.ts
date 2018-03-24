@@ -6,6 +6,8 @@ import 'rxjs/add/operator/bufferCount';
 import { ChatClient } from '../src/index';
 import { ChatState } from '../src/shared/model/ChatState';
 import { ConnectedSocketState } from '../src/SocketState';
+import { chatStateReducer } from '../src/chatStateReducer';
+import { EmptyState } from '../src/ClientState';
 
 const serverUrl = 'http://localhost:35558'; //'https://serene-basin-84996.herokuapp.com/';
 
@@ -13,9 +15,9 @@ describe('ChatService', function () {
     this.timeout(15000);
 
     it('should connect', done => {
-        const service = new ChatClient(serverUrl);
+        const service = new ChatClient(serverUrl, chatStateReducer);
         service.stateChanges
-            .first(x => x.isConnected && !x.chat.isAuthenticated)
+            .first(x => x.socket.isConnected && x.chat !== EmptyState && !x.chat.isAuthenticated)
             .subscribe(x => {
                 service.resetState();
                 service.disconnect();
