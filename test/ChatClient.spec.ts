@@ -45,7 +45,7 @@ describe('ChatService', function () {
                 done();
             });
 
-        service.join(userName);
+        service.tryLogin(userName);
         service.sendMessage({ text: messageText });
 
     })

@@ -35,11 +35,11 @@ export class ChatClient {
         this.socket.open();
     }
 
-    join(userName: string): void {
+    tryLogin(userName: string): void {
         this.emitCommand({ type: ClientCommandType.TryLogin, userName });
     }
 
-    leave(): void {
+    logout(): void {
         this.emitCommand({ type: ClientCommandType.Logout });
     }
 
