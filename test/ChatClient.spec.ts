@@ -7,7 +7,7 @@ import { ChatClient } from '../src/index';
 import { ChatState } from '../src/shared/model/ChatState';
 import { ConnectedSocketState } from '../src/SocketState';
 import { chatStateReducer } from '../src/chatStateReducer';
-import { EmptyState } from '../src/ClientState';
+import { Authenticated } from '../src/ClientState';
 
 const serverUrl = 'http://localhost:35558'; //'https://serene-basin-84996.herokuapp.com/';
 
@@ -15,10 +15,11 @@ describe('ChatService', function () {
     this.timeout(15000);
 
     it('should connect', done => {
-        const service = new ChatClient(serverUrl, chatStateReducer);
+        const service = ChatClient.connect(serverUrl);
         service.stateChanges
-            .first(x => x.socket.isConnected && x.chat !== EmptyState && !x.chat.isAuthenticated)
+            .first(x => x.socket.isConnected && !x.chat.isAuthenticated)
             .subscribe(x => {
+                console.log('test', JSON.stringify(x))
                 service.resetState();
                 service.disconnect();
                 done();
@@ -30,7 +31,7 @@ describe('ChatService', function () {
         const messageText = 'haha!';
         const service = ChatClient.connect(serverUrl);
         service.stateChanges
-            .filter((x): x is ConnectedSocketState & { chat: ChatState } => x.isConnected && x.chat.isAuthenticated)
+            .filter((x): x is { socket: ConnectedSocketState, chat: Authenticated & ChatState } => x.socket.isConnected && x.chat.isAuthenticated)
             .bufferCount(2)
             .subscribe(states => {
                 console.log(JSON.stringify(states))

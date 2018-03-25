@@ -15,6 +15,7 @@ class ChatClient {
         socket.on('disconnect', () => console.log('disconnected'));
         this.socket = socket;
         this.wireEvents(socket, state => this.stateChanges.next(state), () => this.stateChanges.getValue(), chatStateReducer);
+        this.socket.open();
     }
     emitCommand(command) {
         this.socket.emit(WebSocketEventName_1.WebSocketEventName.ClientCommand, command);
@@ -35,7 +36,7 @@ class ChatClient {
         this.emitCommand({ type: ClientCommand_1.ClientCommandType.ResetState });
     }
     connect() {
-        this.stateChanges.next({ socket: SocketState_1.SocketState.Connecting, chat: ClientState_1.EmptyState });
+        this.stateChanges.next({ socket: SocketState_1.SocketState.Connecting, chat: ClientState_1.AuthenticatableState.NotAuthenticated });
         this.socket.open();
     }
     disconnect() {
@@ -43,20 +44,20 @@ class ChatClient {
     }
     wireEvents(socket, emitState, getState, chatStateReducer) {
         const emitErrorState = (error) => emitState({
-            chat: ClientState_1.EmptyState,
+            chat: ClientState_1.AuthenticatableState.NotAuthenticated,
             socket: Object.assign({}, SocketState_1.SocketState.Disconnected, { error: error.toString() })
         });
         const emitLoggedOutState = () => emitState({
             socket: SocketState_1.SocketState.Disconnected,
-            chat: { isAuthenticated: false }
+            chat: ClientState_1.AuthenticatableState.NotAuthenticated
         });
         const emitPendingState = () => emitState({
             socket: SocketState_1.SocketState.Connecting,
-            chat: ClientState_1.EmptyState
+            chat: ClientState_1.AuthenticatableState.NotAuthenticated
         });
         const emitDisconnectedState = () => emitState({
             socket: SocketState_1.SocketState.Disconnected,
-            chat: ClientState_1.EmptyState
+            chat: ClientState_1.AuthenticatableState.NotAuthenticated
         });
         socket.on('error', emitErrorState);
         socket.on('connect_error', emitErrorState);

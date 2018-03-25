@@ -10,7 +10,7 @@ import { WebSocketEventName } from './shared/transport/WebSocketEventName';
 import { ClientCommand, ClientCommandType } from './shared/ClientCommand';
 import { ServerEvent, ServerEventType } from './shared/ServerEvent';
 import { ChatStateReducer, chatStateReducer } from './chatStateReducer';
-import { ClientState, EmptyState, Authenticatable } from './ClientState';
+import { ClientState, Authenticatable, AuthenticatableState } from './ClientState';
 
 export class ChatClient {
     private socket: SocketIOClient.Socket;
@@ -32,6 +32,7 @@ export class ChatClient {
 
         this.socket = socket;
         this.wireEvents(socket, state => this.stateChanges.next(state), () => this.stateChanges.getValue(), chatStateReducer);
+        this.socket.open();
     }
 
     join(userName: string): void {
@@ -51,7 +52,7 @@ export class ChatClient {
     }
 
     connect() {
-        this.stateChanges.next({ socket: SocketState.Connecting, chat: EmptyState });
+        this.stateChanges.next({ socket: SocketState.Connecting, chat: AuthenticatableState.NotAuthenticated });
         this.socket.open();
     }
 
@@ -61,20 +62,20 @@ export class ChatClient {
 
     private wireEvents(socket: SocketIOClient.Socket, emitState: (state: ClientState) => void, getState: () => ClientState, chatStateReducer: ChatStateReducer): void {
         const emitErrorState = (error: any) => emitState({
-            chat: EmptyState,
+            chat: AuthenticatableState.NotAuthenticated,
             socket: { ...SocketState.Disconnected, error: error.toString() }
         });
         const emitLoggedOutState = () => emitState({
-            socket: SocketState.Disconnected,
-            chat: { isAuthenticated: false }
+            socket: SocketState.Connected,
+            chat: AuthenticatableState.NotAuthenticated
         });
         const emitPendingState = () => emitState({
             socket: SocketState.Connecting,
-            chat: EmptyState
+            chat: AuthenticatableState.NotAuthenticated
         });
         const emitDisconnectedState = () => emitState({
             socket: SocketState.Disconnected,
-            chat: EmptyState
+            chat: AuthenticatableState.NotAuthenticated
         });
 
         socket.on('error', emitErrorState);

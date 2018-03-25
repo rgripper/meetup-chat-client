@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const SocketState_1 = require("./SocketState");
-exports.EmptyState = {};
+exports.AuthenticatableState = {
+    NotAuthenticated: { isAuthenticated: false }
+};
 exports.ClientState = {
     Initial: {
         socket: SocketState_1.SocketState.Disconnected,
-        chat: exports.EmptyState
+        chat: exports.AuthenticatableState.NotAuthenticated
     }
 };
 //# sourceMappingURL=ClientState.js.map
