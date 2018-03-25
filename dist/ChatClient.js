@@ -23,10 +23,10 @@ class ChatClient {
     static connect(url) {
         return new ChatClient(url, chatStateReducer_1.chatStateReducer);
     }
-    join(userName) {
+    tryLogin(userName) {
         this.emitCommand({ type: ClientCommand_1.ClientCommandType.TryLogin, userName });
     }
-    leave() {
+    logout() {
         this.emitCommand({ type: ClientCommand_1.ClientCommandType.Logout });
     }
     sendMessage(message) {
@@ -48,7 +48,7 @@ class ChatClient {
             socket: Object.assign({}, SocketState_1.SocketState.Disconnected, { error: error.toString() })
         });
         const emitLoggedOutState = () => emitState({
-            socket: SocketState_1.SocketState.Disconnected,
+            socket: SocketState_1.SocketState.Connected,
             chat: ClientState_1.AuthenticatableState.NotAuthenticated
         });
         const emitPendingState = () => emitState({
