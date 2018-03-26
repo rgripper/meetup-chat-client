@@ -18,9 +18,11 @@ export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<Ch
                     users: [event.user, ...chatState.users]
                 };
             case ServerEventType.UserLeft:
+                const disconnectedUser = chatState.users.find(x => x.id == event.userId);
+                const otherUsers = chatState.users.filter(u => u.id !== event.userId);
                 return {
                     ...chatState,
-                    users: chatState.users.filter(u => u.id !== event.userId)
+                    users: otherUsers.concat(disconnectedUser ? [{ ...disconnectedUser, isConnected: false }] : [])
                 };
             default:
                 console.log('event was not processed', event);
