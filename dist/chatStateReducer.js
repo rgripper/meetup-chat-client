@@ -9,7 +9,9 @@ exports.chatStateReducer = (chatState, event) => {
             case ServerEvent_1.ServerEventType.UserJoined:
                 return Object.assign({}, chatState, { users: [event.user, ...chatState.users] });
             case ServerEvent_1.ServerEventType.UserLeft:
-                return Object.assign({}, chatState, { users: chatState.users.filter(u => u.id == event.userId) });
+                const disconnectedUser = chatState.users.find(x => x.id == event.userId);
+                const otherUsers = chatState.users.filter(u => u.id !== event.userId);
+                return Object.assign({}, chatState, { users: otherUsers.concat(disconnectedUser ? [Object.assign({}, disconnectedUser, { isConnected: false })] : []) });
             default:
                 console.log('event was not processed', event);
                 return chatState;
