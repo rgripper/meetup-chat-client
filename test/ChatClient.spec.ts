@@ -9,7 +9,7 @@ import { ConnectedSocketState } from '../src/SocketState';
 import { chatStateReducer } from '../src/chatStateReducer';
 import { Authenticated } from '../src/ClientState';
 
-const serverUrl = 'http://localhost:35558'; //'https://serene-basin-84996.herokuapp.com/';
+const serverUrl = 'http://localhost:35558';
 
 describe('ChatService', function () {
     this.timeout(15000);

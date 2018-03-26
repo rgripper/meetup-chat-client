@@ -20,7 +20,7 @@ export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<Ch
             case ServerEventType.UserLeft:
                 return {
                     ...chatState,
-                    users: chatState.users.filter(u => u.id == event.userId)
+                    users: chatState.users.filter(u => u.id !== event.userId)
                 };
             default:
                 console.log('event was not processed', event);
