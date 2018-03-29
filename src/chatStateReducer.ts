@@ -15,7 +15,7 @@ export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<Ch
             case ServerEventType.UserJoined:
                 return {
                     ...chatState,
-                    users: [event.user, ...chatState.users]
+                    users: [event.user, ...chatState.users.filter(x => x.id !== event.user.id)]
                 };
             case ServerEventType.UserLeft:
                 const disconnectedUser = chatState.users.find(x => x.id == event.userId);
