@@ -1,6 +1,6 @@
 {
   "name": "meetup-chat-client",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Chat client for meetup-chat-server",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

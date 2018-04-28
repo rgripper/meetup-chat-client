@@ -1,3 +1,4 @@
 export { ChatClient } from './ChatClient'
-//export { DummyChatService } from './DummyChatService'
 export { SocketState } from './SocketState'
+export { ClientState } from './ClientState'
+export { ChatState } from './shared/model/ChatState'
