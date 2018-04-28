@@ -9,7 +9,8 @@
         "removeComments": false,
         "allowJs": false,
         "strict": false,
-
+        "declaration": true,
+        "declarationDir": "dist",
         "skipLibCheck": true,
         "outDir": "dist",
         "lib": [
