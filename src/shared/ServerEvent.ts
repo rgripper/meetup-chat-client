@@ -1,6 +1,6 @@
 import { Message } from "./model/Message";
 import { User } from "./model/User";
-import { ChatState } from "./model/ChatState";
+import { UserChatState } from "./model/UserChatState";
 
 export enum ServerEventType {
     UserLeft,
@@ -25,7 +25,7 @@ export type ServerEvent =
     }
     | {
         type: ServerEventType.LoginSuccessful,
-        chat: ChatState
+        chat: UserChatState
     }
     | {
         type: ServerEventType.LoginFailed,

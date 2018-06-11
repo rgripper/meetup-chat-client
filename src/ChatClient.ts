@@ -1,16 +1,13 @@
 import * as io from 'socket.io-client'
-import { Message } from './shared/model/Message'
 import { SubmittedMessage } from './shared/model/SubmittedMessage'
-import { User } from './shared/model/User'
-import { ChatState } from './shared/model/ChatState';
-import { SocketState, ConnectedSocketState } from './SocketState';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { SocketState } from './SocketState';
+import { BehaviorSubject } from 'rxjs';
 import { WebSocketEventName } from './shared/transport/WebSocketEventName';
 import { ClientCommand, ClientCommandType } from './shared/ClientCommand';
-import { ServerEvent, ServerEventType } from './shared/ServerEvent';
+import { ServerEvent } from './shared/ServerEvent';
 import { ChatStateReducer, chatStateReducer } from './chatStateReducer';
 import { ClientState, Authenticatable, AuthenticatableState } from './ClientState';
+import { UserChatState } from './shared/model/UserChatState';
 
 export class ChatClient {
     private socket: SocketIOClient.Socket;
@@ -93,7 +90,7 @@ export class ChatClient {
 
             emitState({
                 socket: SocketState.Connected,
-                chat: chatStateReducer(state.chat as Authenticatable<ChatState>, event)
+                chat: chatStateReducer(state.chat as Authenticatable<UserChatState>, event)
             });
         });
     }

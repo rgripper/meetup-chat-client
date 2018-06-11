@@ -1,5 +1,5 @@
 import { SocketState, ConnectedSocketState, ConnectingSocketState, DisconnectedSocketState } from "./SocketState";
-import { ChatState } from "./shared/model/ChatState";
+import { UserChatState } from "./shared/model/UserChatState";
 
 export type Authenticated = { isAuthenticated: true }
 export type NotAuthenticated = { isAuthenticated: false, error?: string }
@@ -14,7 +14,7 @@ export type Authenticatable<State> =
 export type ClientState = 
 | {
     socket: ConnectedSocketState
-    chat: Authenticatable<ChatState>
+    chat: Authenticatable<UserChatState>
 }
 | {
     socket: ConnectingSocketState | DisconnectedSocketState

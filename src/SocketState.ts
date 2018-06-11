@@ -1,5 +1,3 @@
-import { ChatState } from "./shared/model/ChatState";
-
 export interface ConnectedSocketState {
     isConnected: true
     isConnecting: false

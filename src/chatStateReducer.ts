@@ -1,10 +1,10 @@
 import { ServerEventType, ServerEvent } from "./shared/ServerEvent";
 import { Authenticatable } from "./ClientState";
-import { ChatState } from "./shared/model/ChatState";
+import { UserChatState } from "./shared/model/UserChatState";
 
-export type ChatStateReducer = (chatState: Authenticatable<ChatState>, event: ServerEvent) => Authenticatable<ChatState>
+export type ChatStateReducer = (chatState: Authenticatable<UserChatState>, event: ServerEvent) => Authenticatable<UserChatState>
 
-export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<ChatState>, event: ServerEvent): Authenticatable<ChatState> => {
+export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<UserChatState>, event: ServerEvent): Authenticatable<ChatState> => {
     if (chatState.isAuthenticated) {
         switch (event.type) {
             case ServerEventType.MessageAdded:
