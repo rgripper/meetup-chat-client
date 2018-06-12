@@ -4,7 +4,7 @@ import { UserChatState } from "./shared/model/UserChatState";
 
 export type ChatStateReducer = (chatState: Authenticatable<UserChatState>, event: ServerEvent) => Authenticatable<UserChatState>
 
-export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<UserChatState>, event: ServerEvent): Authenticatable<ChatState> => {
+export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<UserChatState>, event: ServerEvent): Authenticatable<UserChatState> => {
     if (chatState.isAuthenticated) {
         switch (event.type) {
             case ServerEventType.MessageAdded:

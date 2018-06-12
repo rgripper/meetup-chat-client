@@ -1,0 +1,1 @@
+{"version":3,"file":"ClientState.js","sourceRoot":"","sources":["../src/ClientState.ts"],"names":[],"mappings":";;AAAA,+CAAkH;AAKrG,QAAA,oBAAoB,GAAG;IAChC,gBAAgB,EAAE,EAAE,eAAe,EAAE,KAAK,EAAsB;CACnE,CAAA;AAgBY,QAAA,WAAW,GAAG;IACvB,OAAO,EAAE;QACL,MAAM,EAAE,yBAAW,CAAC,YAAY;QAChC,IAAI,EAAE,4BAAoB,CAAC,gBAAgB;KAC/B;CACnB,CAAA"}
