@@ -40,8 +40,8 @@ export class ChatClient {
         this.emitCommand({ type: ClientCommandType.Logout });
     }
 
-    sendMessage(message: SubmittedMessage): void {
-        this.emitCommand({ type: ClientCommandType.AddMessage, message });
+    sendText(text: string): void {
+        this.emitCommand({ type: ClientCommandType.AddMessage, message: { text } });
     }
 
     resetState(): void {
