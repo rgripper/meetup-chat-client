@@ -1,5 +1,4 @@
-import * as io from 'socket.io-client'
-import { SubmittedMessage } from './shared/model/SubmittedMessage'
+import * as io from 'socket.io-client';
 import { SocketState } from './SocketState';
 import { BehaviorSubject } from 'rxjs';
 import { WebSocketEventName } from './shared/transport/WebSocketEventName';
