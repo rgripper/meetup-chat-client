@@ -1,4 +1,3 @@
-import { SubmittedMessage } from './shared/model/SubmittedMessage';
 import { BehaviorSubject } from 'rxjs';
 import { ChatStateReducer } from './chatStateReducer';
 import { ClientState } from './ClientState';
@@ -10,7 +9,7 @@ export declare class ChatClient {
     constructor(url: string, chatStateReducer: ChatStateReducer);
     tryLogin(userName: string): void;
     logout(): void;
-    sendMessage(message: SubmittedMessage): void;
+    sendText(text: string): void;
     resetState(): void;
     connect(): void;
     disconnect(): void;

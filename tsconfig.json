@@ -25,7 +25,8 @@
     "buildOnSave": true,
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "src/**/*.spec.ts"
     ],
     "include": [
         "src"
