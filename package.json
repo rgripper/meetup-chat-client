@@ -1,6 +1,6 @@
 {
   "name": "meetup-chat-client",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Chat client for meetup-chat-server",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,7 +20,7 @@
   "scripts": {
     "tsc": "tsc",
     "build": "tsc  -p tsconfig.json",
-    "test": "mocha -r ts-node/register test/**/*.spec.ts"
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.1.2",

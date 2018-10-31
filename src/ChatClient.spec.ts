@@ -53,6 +53,6 @@ describe("ChatService", function() {
       });
 
     service.tryLogin(userName);
-    service.sendMessage({ text: messageText });
+    service.sendText(messageText);
   });
 });
