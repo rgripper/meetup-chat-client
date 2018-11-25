@@ -45,6 +45,14 @@ class ChatClient {
     static connect(url) {
         return new ChatClient(url, chatStateReducer_1.chatStateReducer);
     }
+    static subscribe(url, userName, handler) {
+        const client = new ChatClient(url, chatStateReducer_1.chatStateReducer);
+        const subscription = client.stateChanges.subscribe(handler);
+        return {
+            unsubscribe: () => subscription.unsubscribe(),
+            sendText: client.sendText
+        };
+    }
     wireEvents(socket, emitState, getState, chatStateReducer) {
         const emitErrorState = (error) => emitState({
             chat: ClientState_1.AuthenticatableState.NotAuthenticated,

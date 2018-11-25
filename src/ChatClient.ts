@@ -1,6 +1,6 @@
 import * as io from "socket.io-client";
 import { SocketState } from "./SocketState";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subscription } from "rxjs";
 import { WebSocketEventName } from "./shared/transport/WebSocketEventName";
 import { ClientCommand, ClientCommandType } from "./shared/ClientCommand";
 import { ServerEvent } from "./shared/ServerEvent";
@@ -23,6 +23,15 @@ export class ChatClient {
 
   static connect(url: string): ChatClient {
     return new ChatClient(url, chatStateReducer);
+  }
+
+  static subscribe(url: string, userName: string, handler: (data: ClientState) => any): { unsubscribe: () => void, sendText: (text: string) => void } {
+    const client = new ChatClient(url, chatStateReducer);
+    const subscription = client.stateChanges.subscribe(handler);
+    return {
+      unsubscribe: () => subscription.unsubscribe(),
+      sendText: client.sendText
+    }
   }
 
   constructor(url: string, chatStateReducer: ChatStateReducer) {
