@@ -1,4 +1,3 @@
-import { SubmittedMessage } from "./model/SubmittedMessage";
 export declare enum ClientCommandType {
     Logout = 0,
     TryLogin = 1,
@@ -12,7 +11,7 @@ export declare type ClientCommand = {
     type: ClientCommandType.Logout;
 } | {
     type: ClientCommandType.AddMessage;
-    message: SubmittedMessage;
+    text: string;
 } | {
     type: ClientCommandType.ResetState;
 };

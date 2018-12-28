@@ -22,7 +22,7 @@ export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<Us
                 const otherUsers = chatState.users.filter(u => u.id !== event.userId);
                 return {
                     ...chatState,
-                    users: otherUsers.concat(disconnectedUser ? [{ ...disconnectedUser, isConnected: false }] : [])
+                    users: otherUsers.concat(disconnectedUser ? [{ ...disconnectedUser, isAvailable: false }] : [])
                 };
             default:
                 console.log('event was not processed', event);
@@ -31,11 +31,6 @@ export const chatStateReducer: ChatStateReducer = (chatState: Authenticatable<Us
     }
     else {
         switch (event.type) {
-            case ServerEventType.LoginFailed:
-                return {
-                    isAuthenticated: false,
-                    error: event.error
-                }
             case ServerEventType.LoginSuccessful:
                 return {
                     ...event.chat,

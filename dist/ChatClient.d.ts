@@ -14,7 +14,6 @@ export declare class ChatClient {
     tryLogin: (userName: string) => void;
     logout: () => void;
     sendText: (text: string) => void;
-    resetState: () => void;
     connect: () => void;
     disconnect: () => void;
     private wireEvents;

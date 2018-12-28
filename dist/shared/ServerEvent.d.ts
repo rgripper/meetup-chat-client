@@ -5,8 +5,7 @@ export declare enum ServerEventType {
     UserLeft = 0,
     UserJoined = 1,
     MessageAdded = 2,
-    LoginSuccessful = 3,
-    LoginFailed = 4
+    LoginSuccessful = 3
 }
 export declare type ServerEvent = {
     type: ServerEventType.MessageAdded;
@@ -20,7 +19,4 @@ export declare type ServerEvent = {
 } | {
     type: ServerEventType.LoginSuccessful;
     chat: UserChatState;
-} | {
-    type: ServerEventType.LoginFailed;
-    error: string;
 };

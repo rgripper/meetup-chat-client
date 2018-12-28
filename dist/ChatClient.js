@@ -17,10 +17,7 @@ class ChatClient {
             this.emitCommand({ type: ClientCommand_1.ClientCommandType.Logout });
         };
         this.sendText = (text) => {
-            this.emitCommand({ type: ClientCommand_1.ClientCommandType.AddMessage, message: { text } });
-        };
-        this.resetState = () => {
-            this.emitCommand({ type: ClientCommand_1.ClientCommandType.ResetState });
+            this.emitCommand({ type: ClientCommand_1.ClientCommandType.AddMessage, text });
         };
         this.connect = () => {
             this.stateChanges.next({

@@ -58,11 +58,7 @@ export class ChatClient {
   };
 
   sendText = (text: string): void => {
-    this.emitCommand({ type: ClientCommandType.AddMessage, message: { text } });
-  };
-
-  resetState = (): void => {
-    this.emitCommand({ type: ClientCommandType.ResetState });
+    this.emitCommand({ type: ClientCommandType.AddMessage, text });
   };
 
   connect = (): void => {

@@ -6,6 +6,5 @@ var ServerEventType;
     ServerEventType[ServerEventType["UserJoined"] = 1] = "UserJoined";
     ServerEventType[ServerEventType["MessageAdded"] = 2] = "MessageAdded";
     ServerEventType[ServerEventType["LoginSuccessful"] = 3] = "LoginSuccessful";
-    ServerEventType[ServerEventType["LoginFailed"] = 4] = "LoginFailed";
 })(ServerEventType = exports.ServerEventType || (exports.ServerEventType = {}));
 //# sourceMappingURL=ServerEvent.js.map
